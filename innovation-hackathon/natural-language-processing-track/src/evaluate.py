@@ -7,7 +7,7 @@ def nlp_evaluate(model, dataloader, device):
     y_true_list = []
     y_preds_raw = []
     start_time = time.time()
-    for idx,data in enumerate(dataloader):
+    for data in dataloader:
         inputs = data['input_ids'].to(device)
         try:
             labels = data['labels'].to(device)
@@ -19,7 +19,7 @@ def nlp_evaluate(model, dataloader, device):
             preds = model(inputs)
             preds_class = torch.argmax(preds.logits,dim=-1) 
             y_preds_raw.append(preds_class) 
-        
+
     torch.enable_grad()
     infer_time = time.time()-start_time
     print(f'inference_time={infer_time}')

@@ -99,10 +99,9 @@ def train(dataloader, model, optimizer, criterion,
         epoch_acc = running_corrects.double() / n_samples
         print("Loss = {:.4f}, Accuracy = {:.4f}".format(epoch_loss, epoch_acc))
 
-        if target_accuracy is not None:
-            if epoch_acc > target_accuracy:
-                print("Early Stopping")
-                break
+        if target_accuracy is not None and epoch_acc > target_accuracy:
+            print("Early Stopping")
+            break
 
     return model
 

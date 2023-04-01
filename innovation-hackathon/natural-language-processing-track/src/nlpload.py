@@ -26,8 +26,7 @@ class newDatasetNoLabels(torch.utils.data.Dataset):
     def __init__(self, encodings):
         self.encodings = encodings
     def __getitem__(self, idx):
-        item = {key: torch.tensor(val[idx]) for key, val in self.encodings.items()}
-        return item
+        return {key: torch.tensor(val[idx]) for key, val in self.encodings.items()}
     def __len__(self):
         return len(self.encodings['input_ids'])
 
@@ -40,12 +39,12 @@ def csv_to_torch(csv_path,labels=True):
     if labels:
         hdf["label"] = hdf["humor"].astype(int)
     tokenizer = DistilBertTokenizerFast.from_pretrained('distilbert-base-uncased')
-    data_encoded = tokenizer(list(hdf['text']), padding='max_length', truncation=True, max_length=50, return_tensors='pt')  
-    if labels:
-        torch_data = newDatasetWithLabels(data_encoded,list(hdf['label']))
-    else:
-        torch_data = newDatasetNoLabels(data_encoded)
-    return torch_data
+    data_encoded = tokenizer(list(hdf['text']), padding='max_length', truncation=True, max_length=50, return_tensors='pt')
+    return (
+        newDatasetWithLabels(data_encoded, list(hdf['label']))
+        if labels
+        else newDatasetNoLabels(data_encoded)
+    )
 
 def mainLoader(csv_path,batch_size,labels=True):
     '''
@@ -53,8 +52,7 @@ def mainLoader(csv_path,batch_size,labels=True):
     so we can load in the data by batch for model prediction
     '''
     torch_data = csv_to_torch(csv_path,labels=labels)
-    torch_data_loader = torch.utils.data.DataLoader(torch_data,batch_size)
-    return torch_data_loader
+    return torch.utils.data.DataLoader(torch_data,batch_size)
 
 
 def load_csv_with_labels(csv_path):
@@ -63,8 +61,7 @@ def load_csv_with_labels(csv_path):
     return hdf
     
 def load_csv_no_labels(csv_path):
-    hdf = pd.read_csv(csv_path)
-    return hdf
+    return pd.read_csv(csv_path)
 
 def df_to_labels_list(df):
     return list(df['label'])

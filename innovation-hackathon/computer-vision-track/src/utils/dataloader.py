@@ -92,14 +92,11 @@ class MvtecAdDatasetNoLabels(Dataset):
         
     @staticmethod
     def _get_images(root):
-        image_names = []
-        
         folder = BLIND_DATA
         folder = os.path.join(root, folder)
         class_images = os.listdir(folder)
         class_images = [os.path.join(folder, image) for image in class_images if image.find(IMG_FORMAT) > -1]
-        image_names.extend(class_images)
-        return image_names
+        return list(class_images)
         
     def __len__(self):
         return len(self.img_filenames)
@@ -119,7 +116,7 @@ def get_train_test_loaders(root, batch_size, test_size=0.2, random_state=42, spl
     """
     
     if split:
-        
+
         dataset = MvtecAdDataset(root=root)
 
         train_idx, test_idx = train_test_split(
@@ -131,7 +128,7 @@ def get_train_test_loaders(root, batch_size, test_size=0.2, random_state=42, spl
         )
         train_sampler = SubsetRandomSampler(train_idx)
         test_sampler = SubsetRandomSampler(test_idx)
-    
+
         train_loader = DataLoader(
             dataset, batch_size=batch_size, sampler=train_sampler, drop_last=True
         )
@@ -139,11 +136,9 @@ def get_train_test_loaders(root, batch_size, test_size=0.2, random_state=42, spl
             dataset, batch_size=batch_size, sampler=test_sampler, drop_last=False
         )
         return train_loader, test_loader
-    
+
     else:
         
         dataset = MvtecAdDatasetNoLabels(root=root)
-        no_label_loader = DataLoader(dataset, batch_size=batch_size, drop_last=False)
-        
-        return no_label_loader
+        return DataLoader(dataset, batch_size=batch_size, drop_last=False)
     
